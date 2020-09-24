@@ -1,0 +1,7 @@
+/data/https-portal
+#/data/fess/opt/fess
+/data/fess/var/lib/fess
+/data/fess/var/log/fess
+/data/fess/usr/share/fess/app/WEB-INF/plugin
+/data/elasticsearch/usr/share/elasticsearch/data
+/data/elasticsearch/usr/share/elasticsearch/config/dictionary
