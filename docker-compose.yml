@@ -30,7 +30,6 @@ services:
       - RUN_ELASTICSEARCH=false
       - "ES_HTTP_URL=http://es01:9200"
       - "FESS_DICTIONARY_PATH=/usr/share/elasticsearch/config/dictionary/"
-      - "FESS_JAVA_OPTS=-Dfess.config.adaptive.load.control=20 -Dfess.config.crawler.document.cache.enabled=false"
     networks:
       - docsearch_net
     volumes:

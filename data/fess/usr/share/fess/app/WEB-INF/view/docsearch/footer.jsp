@@ -2,7 +2,7 @@
 <footer role="contentinfo">
 	<div class="container text-center">
 		<p class="textmuted">
-			Powered by <a href="https://www.codelibs.org/" target="_blank">CodeLibs</a>
+			Powered by <a href="https://fess.codelibs.org/" target="_blank">Fess</a> | &copy; <a href="https://codelibs.co/" target="_blank">CodeLibs, Inc.</a>
 		</p>
 	</div>
 </footer>
