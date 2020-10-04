@@ -160,7 +160,7 @@ request.setAttribute("facetResponse", ComponentUtil.getViewHelper().getCachedFac
                 <div class="row">
                 <c:forEach var="fieldData" items="${facetResponse.fieldList}">
                     <c:if test="${fieldData.valueCountMap.size() > 0}">
-                    <div class="col-md-4">
+                    <div class="col-md-12">
                     <ul class="list-group mb-2">
                         <li class="list-group-item text-uppercase">${f:h(fieldData.name)}</li>
                         <c:forEach var="countEntry" items="${fieldData.valueCountMap}">
