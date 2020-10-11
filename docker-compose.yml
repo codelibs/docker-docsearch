@@ -12,6 +12,8 @@ services:
     environment:
       DOMAINS: 'docsearch.codelibs.org -> http://fess01:8080'
       STAGE: local
+      CUSTOM_NGINX_SERVER_CONFIG_BLOCK: |
+          add_header X-Frame-Options SAMEORIGIN;
     networks:
       - docsearch_net
     volumes:
