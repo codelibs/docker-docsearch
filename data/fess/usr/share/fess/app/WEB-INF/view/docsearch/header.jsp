@@ -27,6 +27,10 @@
 								<em class="fa fa-cog"></em> <span class="sr-only"><la:message
 										key="labels.header_form_option_btn" /></span>
 							</button>
+							<a href="https://www.google.com/search?q=${f:u(q)}"
+								class="btn btn-info">
+								<em class="fab fa-google"></em>
+							</a>
 						</span>
 					</div>
 				</div>
