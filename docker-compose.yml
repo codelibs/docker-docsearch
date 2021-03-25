@@ -21,7 +21,7 @@ services:
       - ./data/https-portal/conf/docsearch.codelibs.org.ssl.conf.erb:/var/lib/nginx-conf/docsearch.codelibs.org.ssl.conf.erb:ro
 
   fess01:
-    image: ghcr.io/codelibs/fess:13.11.0
+    image: ghcr.io/codelibs/fess:13.11.1
     container_name: fess01
     restart: always
     ports:
@@ -29,7 +29,6 @@ services:
     depends_on:
       - es01
     environment:
-      - RUN_ELASTICSEARCH=false
       - "ES_HTTP_URL=http://es01:9200"
       - "FESS_DICTIONARY_PATH=/usr/share/elasticsearch/config/dictionary/"
     networks:
@@ -44,7 +43,7 @@ services:
       - ./data/fess/usr/share/fess/app/images/docsearch:/usr/share/fess/app/images/docsearch
 
   es01:
-    image: ghcr.io/codelibs/fess-elasticsearch:7.11.1
+    image: ghcr.io/codelibs/fess-elasticsearch:7.11.2
     container_name: es01
     restart: always
     environment:
