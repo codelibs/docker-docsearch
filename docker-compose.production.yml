@@ -7,4 +7,4 @@ services:
 
   es01:
     environment:
-      ES_JAVA_OPTS: -Xms3g -Xmx3g
+      ES_JAVA_OPTS: -Xms3g -Xmx3g -Dlog4j2.formatMsgNoLookups=true
