@@ -21,7 +21,7 @@ services:
       - ./data/https-portal/conf/docsearch.codelibs.org.ssl.conf.erb:/var/lib/nginx-conf/docsearch.codelibs.org.ssl.conf.erb:ro
 
   fess01:
-    image: ghcr.io/codelibs/fess:13.15.3
+    image: ghcr.io/codelibs/fess:13.16.0
     container_name: fess01
     restart: always
     ports:
@@ -43,7 +43,7 @@ services:
       - ./data/fess/usr/share/fess/app/images/docsearch:/usr/share/fess/app/images/docsearch
 
   es01:
-    image: ghcr.io/codelibs/fess-elasticsearch:7.15.2
+    image: ghcr.io/codelibs/fess-elasticsearch:7.16.2
     container_name: es01
     restart: always
     environment:

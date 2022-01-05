@@ -12,6 +12,12 @@ mkdir -p ./data/fess/usr/share/fess/app/images/docsearch
 mkdir -p ./data/elasticsearch/usr/share/elasticsearch/data
 mkdir -p ./data/elasticsearch/usr/share/elasticsearch/config/dictionary
 
+echo "Downloading plugins..."
+plugin_version=13.16.0
+rm -f ./data/fess/usr/share/fess/app/WEB-INF/plugin/fess-script-groovy-*.jar
+curl -o ./data/fess/usr/share/fess/app/WEB-INF/plugin/fess-script-groovy-${plugin_version}.jar \
+  https://repo1.maven.org/maven2/org/codelibs/fess/fess-script-groovy/${plugin_version}/fess-script-groovy-${plugin_version}.jar
+
 if [ $(uname -s) = "Linux" ] ; then
   echo "Changing an owner for directories..."
   sudo chown -R root ./data/https-portal/ssl_certs
