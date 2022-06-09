@@ -13,7 +13,7 @@ mkdir -p ./data/elasticsearch/usr/share/elasticsearch/data
 mkdir -p ./data/elasticsearch/usr/share/elasticsearch/config/dictionary
 
 echo "Downloading plugins..."
-plugin_version=13.16.0
+plugin_version=14.1.0
 rm -f ./data/fess/usr/share/fess/app/WEB-INF/plugin/fess-script-groovy-*.jar
 curl -o ./data/fess/usr/share/fess/app/WEB-INF/plugin/fess-script-groovy-${plugin_version}.jar \
   https://repo1.maven.org/maven2/org/codelibs/fess/fess-script-groovy/${plugin_version}/fess-script-groovy-${plugin_version}.jar

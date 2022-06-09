@@ -1,5 +1,3 @@
-version: '3.1'
-
 services:
   https-portal:
     environment:
@@ -7,4 +5,4 @@ services:
 
   es01:
     environment:
-      ES_JAVA_OPTS: -Xms3g -Xmx3g -Dlog4j2.formatMsgNoLookups=true
+      ES_JAVA_OPTS: -Xms3g -Xmx3g

@@ -1,12 +1,10 @@
-version: '3.1'
-
 services:
   https-portal:
     image: steveltn/https-portal:1
     restart: always
-    ports:
-      - '80:80'
-      - '443:443'
+#    ports:
+#      - '80:80'
+#      - '443:443'
     depends_on:
       - fess01
     environment:
@@ -21,7 +19,7 @@ services:
       - ./data/https-portal/conf/docsearch.codelibs.org.ssl.conf.erb:/var/lib/nginx-conf/docsearch.codelibs.org.ssl.conf.erb:ro
 
   fess01:
-    image: ghcr.io/codelibs/fess:13.16.0
+    image: ghcr.io/codelibs/fess:14.1.1
     container_name: fess01
     restart: always
     ports:
@@ -31,6 +29,7 @@ services:
     environment:
       - "ES_HTTP_URL=http://es01:9200"
       - "FESS_DICTIONARY_PATH=/usr/share/elasticsearch/config/dictionary/"
+      - "FESS_JAVA_OPTS=-Dfess.config.crawler.document.cache.enabled=false -Dfess.config.adaptive.load.control=20 -Dfess.config.query.facet.fields=label,host"
     networks:
       - docsearch_net
     volumes:
@@ -43,7 +42,7 @@ services:
       - ./data/fess/usr/share/fess/app/images/docsearch:/usr/share/fess/app/images/docsearch
 
   es01:
-    image: ghcr.io/codelibs/fess-elasticsearch:7.16.2
+    image: ghcr.io/codelibs/fess-elasticsearch:7.17.0
     container_name: es01
     restart: always
     environment:
@@ -52,7 +51,7 @@ services:
       - cluster.initial_master_nodes=es01
       - cluster.name=fess-es
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms2g -Xmx2g -Dlog4j2.formatMsgNoLookups=true"
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
       - "FESS_DICTIONARY_PATH=/usr/share/elasticsearch/config/dictionary"
     ulimits:
       nofile:

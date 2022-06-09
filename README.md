@@ -20,7 +20,7 @@ $ bash ./bin/setup.sh
 ### Start Server
 
 ```
-docker-compose up -d
+docker compose -f compose.yaml up -d
 ```
 
 and then access `http://localhost:8080/`.
@@ -36,10 +36,10 @@ You can check search results on `http://localhost:8080/`.
 ### Stop Server
 
 ```
-docker-compose down
+docker compose -f compose.yaml down
 ```
 
 ## For Production
 
-* Replace `docsearch.codelibs.org` with your domain in docker-compose.yml.
-* If you want to use SSL, modify a value of STAGE in docker-compose.yml.
+* Replace `docsearch.codelibs.org` with your domain in compose.yaml.
+* If you want to use SSL, modify a value of STAGE in compose.yaml.
