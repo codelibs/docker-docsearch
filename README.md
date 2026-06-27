@@ -60,12 +60,21 @@ docker compose -f compose.yaml down
 
 ## Configuration
 
-All Fess settings are configured via `-D` JVM flags in `FESS_JAVA_OPTS` in
-`compose.yaml` (rather than a mounted `system.properties` file):
+Fess configuration is split into two layers:
 
-* `fess_config.properties` keys use `-Dfess.config.<key>=<value>`.
-* Dynamic/system settings use `-Dfess.system.<key>=<value>`
-  (e.g. the active theme: `-Dfess.system.theme.default=docsearch`).
+* **`fess_config.properties` overrides** are set as `-Dfess.config.<key>=<value>`
+  JVM flags in `FESS_JAVA_OPTS` in `compose.yaml`.
+* **Dynamic system settings** (the values managed under Admin > General, e.g.
+  the active theme `theme.default=docsearch`) live in
+  `data/fess/opt/fess/system.properties`, which is mounted into the container
+  at `/opt/fess/system.properties`.
+
+The mounted `system.properties` is generated on first `setup.sh` run from the
+tracked `system.properties.template`. The live file is git-ignored, so Fess may
+rewrite it at runtime (e.g. when you save settings in Admin > General) and
+`git pull` will not conflict with your local changes. To reset it to the
+defaults, delete `data/fess/opt/fess/system.properties` and re-run
+`bash ./bin/setup.sh`.
 
 ## For Production
 

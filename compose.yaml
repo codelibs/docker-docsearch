@@ -30,33 +30,12 @@ services:
     environment:
       SEARCH_ENGINE_HTTP_URL: "http://search01:9200"
       FESS_DICTIONARY_PATH: "/usr/share/opensearch/config/dictionary/"
+      # fess_config.properties overrides. Dynamic system settings live in the
+      # mounted data/fess/opt/fess/system.properties (see bin/setup.sh).
       FESS_JAVA_OPTS: >-
-        -Dfess.system.theme.default=docsearch
         -Dfess.config.crawler.document.cache.enabled=false
         -Dfess.config.adaptive.load.control=20
         -Dfess.config.query.facet.fields=label,host
-        -Dfess.system.suggest.document=true
-        -Dfess.system.purge.searchlog.day=90
-        -Dfess.system.append.query.parameter=false
-        -Dfess.system.web.api.popularword=true
-        -Dfess.system.purge.suggest.searchlog.day=30
-        -Dfess.system.user.favorite=false
-        -Dfess.system.login.link.enabled=false
-        -Dfess.system.login.required=false
-        -Dfess.system.result.collapsed=true
-        -Dfess.system.csv.file.encoding=UTF-8
-        -Dfess.system.crawling.incremental=true
-        -Dfess.system.failure.countthreshold=-1
-        -Dfess.system.thumbnail.enabled=true
-        -Dfess.system.search.log=true
-        -Dfess.system.purge.userinfo.day=90
-        -Dfess.system.purge.joblog.day=90
-        -Dfess.system.user.info=true
-        -Dfess.system.crawling.thread.count=5
-        -Dfess.system.ldap.memberof.attribute=memberOf
-        -Dfess.system.web.api.json=true
-        -Dfess.system.day.for.cleanup=90
-        -Dfess.system.suggest.searchlog=true
     networks:
       - docsearch_net
     healthcheck:

@@ -14,6 +14,16 @@ mkdir -p "${THEME_DEST}"
 mkdir -p ./data/opensearch/usr/share/opensearch/data
 mkdir -p ./data/opensearch/usr/share/opensearch/config/dictionary
 
+# Seed the live system.properties from the tracked template on first run.
+# The live file is git-ignored so Fess can rewrite it at runtime (e.g. Admin >
+# General) without causing git-pull conflicts; an existing file is preserved.
+# To reset to defaults, delete it and re-run this script.
+SYSTEM_PROPERTIES=./data/fess/opt/fess/system.properties
+if [ ! -f "${SYSTEM_PROPERTIES}" ]; then
+  echo "Creating ${SYSTEM_PROPERTIES} from template..."
+  cp "${SYSTEM_PROPERTIES}.template" "${SYSTEM_PROPERTIES}"
+fi
+
 echo "Syncing '${THEME_NAME}' theme from fess-themes..."
 # Source resolution:
 #   FESS_THEMES_DIR  -> copy from a local fess-themes checkout (e.g. ../fess-workspace/repos/fess-themes)
