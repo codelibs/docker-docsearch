@@ -1,7 +1,8 @@
 /data/https-portal/ssl_certs
-#/data/fess/opt/fess
+/data/fess/opt/fess
 /data/fess/var/lib/fess
 /data/fess/var/log/fess
 /data/fess/usr/share/fess/app/WEB-INF/plugin
-/data/elasticsearch/usr/share/elasticsearch/data
-/data/elasticsearch/usr/share/elasticsearch/config/dictionary
+/data/fess/usr/share/fess/app/themes/docsearch
+/data/opensearch/usr/share/opensearch/data
+/data/opensearch/usr/share/opensearch/config/dictionary

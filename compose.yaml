@@ -19,50 +19,90 @@ services:
       - ./data/https-portal/conf/docsearch.codelibs.org.ssl.conf.erb:/var/lib/nginx-conf/docsearch.codelibs.org.ssl.conf.erb:ro
 
   fess01:
-    image: ghcr.io/codelibs/fess:14.8.0
+    image: ghcr.io/codelibs/fess:15.7.0
     container_name: fess01
     restart: always
     ports:
       - "8080:8080"
     depends_on:
-      - es01
+      search01:
+        condition: service_healthy
     environment:
-      - "ES_HTTP_URL=http://es01:9200"
-      - "FESS_DICTIONARY_PATH=/usr/share/elasticsearch/config/dictionary/"
-      - "FESS_JAVA_OPTS=-Dfess.config.crawler.document.cache.enabled=false -Dfess.config.adaptive.load.control=20 -Dfess.config.query.facet.fields=label,host"
+      SEARCH_ENGINE_HTTP_URL: "http://search01:9200"
+      FESS_DICTIONARY_PATH: "/usr/share/opensearch/config/dictionary/"
+      FESS_JAVA_OPTS: >-
+        -Dfess.system.theme.default=docsearch
+        -Dfess.config.crawler.document.cache.enabled=false
+        -Dfess.config.adaptive.load.control=20
+        -Dfess.config.query.facet.fields=label,host
+        -Dfess.system.suggest.document=true
+        -Dfess.system.purge.searchlog.day=90
+        -Dfess.system.append.query.parameter=false
+        -Dfess.system.web.api.popularword=true
+        -Dfess.system.purge.suggest.searchlog.day=30
+        -Dfess.system.user.favorite=false
+        -Dfess.system.login.link.enabled=false
+        -Dfess.system.login.required=false
+        -Dfess.system.result.collapsed=true
+        -Dfess.system.csv.file.encoding=UTF-8
+        -Dfess.system.crawling.incremental=true
+        -Dfess.system.failure.countthreshold=-1
+        -Dfess.system.thumbnail.enabled=true
+        -Dfess.system.search.log=true
+        -Dfess.system.purge.userinfo.day=90
+        -Dfess.system.purge.joblog.day=90
+        -Dfess.system.user.info=true
+        -Dfess.system.crawling.thread.count=5
+        -Dfess.system.ldap.memberof.attribute=memberOf
+        -Dfess.system.web.api.json=true
+        -Dfess.system.day.for.cleanup=90
+        -Dfess.system.suggest.searchlog=true
     networks:
       - docsearch_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/v2/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
     volumes:
       - ./data/fess/opt/fess:/opt/fess
       - ./data/fess/var/lib/fess:/var/lib/fess
       - ./data/fess/var/log/fess:/var/log/fess
       - ./data/fess/usr/share/fess/app/WEB-INF/plugin:/usr/share/fess/app/WEB-INF/plugin
-      - ./data/fess/usr/share/fess/app/WEB-INF/view/docsearch:/usr/share/fess/app/WEB-INF/view/docsearch
-      - ./data/fess/usr/share/fess/app/css/docsearch:/usr/share/fess/app/css/docsearch
-      - ./data/fess/usr/share/fess/app/images/docsearch:/usr/share/fess/app/images/docsearch
+      - ./data/fess/usr/share/fess/app/themes/docsearch:/usr/share/fess/app/themes/docsearch
 
-  es01:
-    image: ghcr.io/codelibs/fess-elasticsearch:7.17.7
-    container_name: es01
+  search01:
+    image: ghcr.io/codelibs/fess-opensearch:3.7.0
+    container_name: search01
     restart: always
     environment:
-      - node.name=es01
-      - discovery.seed_hosts=es01
-      - cluster.initial_master_nodes=es01
-      - cluster.name=fess-es
+      - node.name=search01
+      - discovery.seed_hosts=search01
+      - cluster.initial_cluster_manager_nodes=search01
+      - cluster.name=fess-search
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
-      - "FESS_DICTIONARY_PATH=/usr/share/elasticsearch/config/dictionary"
+      - node.roles=cluster_manager,data,ingest,ml
+      - "OPENSEARCH_JAVA_OPTS=-Xms2g -Xmx2g"
+      - "DISABLE_INSTALL_DEMO_CONFIG=true"
+      - "DISABLE_SECURITY_PLUGIN=true"
+      - "FESS_DICTIONARY_PATH=/usr/share/opensearch/config/dictionary"
     ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
       memlock:
         soft: -1
         hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
     volumes:
-      - ./data/elasticsearch/usr/share/elasticsearch/data:/usr/share/elasticsearch/data
-      - ./data/elasticsearch/usr/share/elasticsearch/config/dictionary:/usr/share/elasticsearch/config/dictionary
+      - ./data/opensearch/usr/share/opensearch/data:/usr/share/opensearch/data
+      - ./data/opensearch/usr/share/opensearch/config/dictionary:/usr/share/opensearch/config/dictionary
     ports:
       - 9200:9200
     networks:

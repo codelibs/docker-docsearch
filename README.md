@@ -1,11 +1,16 @@
 # Document Search on Fess
 
-[Fess](https://fess.codelibs.org/) is Enterprise Search Server.
-This docker environment provides Source Code Search Server on Fess.
+[Fess](https://fess.codelibs.org/) is an Enterprise Search Server.
+This Docker environment provides a Document/Source Code Search Server on Fess,
+using the **DocSearch static theme** from
+[fess-themes](https://github.com/codelibs/fess-themes).
+
+* Fess: 15.7
+* Search engine: OpenSearch (`fess-opensearch:3.7.0`)
 
 ## Public Site
 
-* [docesearch.codelibs.org](https://docsearch.codelibs.org/)
+* [docsearch.codelibs.org](https://docsearch.codelibs.org/)
 
 ## Getting Started
 
@@ -17,6 +22,15 @@ $ cd docker-docsearch
 $ bash ./bin/setup.sh
 ```
 
+`setup.sh` creates the data directories and syncs the `docsearch` static theme
+from the fess-themes repository into
+`data/fess/usr/share/fess/app/themes/docsearch`.
+
+* By default it shallow-clones `https://github.com/codelibs/fess-themes.git` (`master`).
+* To use a local checkout instead:
+  `FESS_THEMES_DIR=/path/to/fess-themes bash ./bin/setup.sh`
+* To pin a branch/tag: `FESS_THEMES_REF=<ref> bash ./bin/setup.sh`
+
 ### Start Server
 
 ```
@@ -25,9 +39,14 @@ docker compose -f compose.yaml up -d
 
 and then access `http://localhost:8080/`.
 
+> On Linux, ensure `vm.max_map_count` is at least `262144`
+> (`sudo sysctl -w vm.max_map_count=262144`) for OpenSearch. Docker Desktop
+> handles this automatically.
+
 ### Start Crawler
 
-To start the crawler, run `Default Crawler` or `Data Crawler - ...` in Admin Scheduler page(`http://localhost:8080/admin/scheduler/`).
+To start the crawler, run `Default Crawler` or `Data Crawler - ...` in the
+Admin Scheduler page (`http://localhost:8080/admin/scheduler/`).
 
 ### Search
 
@@ -39,7 +58,17 @@ You can check search results on `http://localhost:8080/`.
 docker compose -f compose.yaml down
 ```
 
+## Configuration
+
+All Fess settings are configured via `-D` JVM flags in `FESS_JAVA_OPTS` in
+`compose.yaml` (rather than a mounted `system.properties` file):
+
+* `fess_config.properties` keys use `-Dfess.config.<key>=<value>`.
+* Dynamic/system settings use `-Dfess.system.<key>=<value>`
+  (e.g. the active theme: `-Dfess.system.theme.default=docsearch`).
+
 ## For Production
 
-* Replace `docsearch.codelibs.org` with your domain in compose.yaml.
-* If you want to use SSL, modify a value of STAGE in compose.yaml.
+* Replace `docsearch.codelibs.org` with your domain in `compose.yaml`.
+* To enable SSL, run with the production overlay:
+  `docker compose -f compose.yaml -f compose-production.yaml up -d`.
