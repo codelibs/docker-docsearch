@@ -58,6 +58,22 @@ You can check search results on `http://localhost:8080/`.
 docker compose -f compose.yaml down
 ```
 
+### Update
+
+To update an existing deployment:
+
+```
+git pull
+bash ./bin/setup.sh
+docker compose -f compose.yaml pull
+docker compose -f compose.yaml up -d
+```
+
+`setup.sh` re-syncs the `docsearch` theme and is safe to re-run: it never
+overwrites an existing `data/fess/opt/fess/system.properties`. That file is
+git-ignored, so `git pull` does not touch it and your runtime settings (and any
+changes made under Admin > General) are preserved across updates.
+
 ## Configuration
 
 Fess configuration is split into two layers:
