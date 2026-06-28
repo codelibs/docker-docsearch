@@ -26,7 +26,7 @@ $ bash ./bin/setup.sh
 from the fess-themes repository into
 `data/fess/usr/share/fess/app/themes/docsearch`.
 
-* By default it shallow-clones `https://github.com/codelibs/fess-themes.git` (`master`).
+* By default it shallow-clones `https://github.com/codelibs/fess-themes.git` (`main`).
 * To use a local checkout instead:
   `FESS_THEMES_DIR=/path/to/fess-themes bash ./bin/setup.sh`
 * To pin a branch/tag: `FESS_THEMES_REF=<ref> bash ./bin/setup.sh`
