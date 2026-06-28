@@ -94,6 +94,12 @@ defaults, delete `data/fess/opt/fess/system.properties` and re-run
 
 ## For Production
 
-* Replace `docsearch.codelibs.org` with your domain in `compose.yaml`.
-* To enable SSL, run with the production overlay:
+The base `compose.yaml` runs Fess locally on `http://localhost:8080/` without a
+TLS proxy. SSL termination is handled by `https-portal`, which is defined only in
+the `compose-production.yaml` overlay so that local runs do not require ports
+`80`/`443`.
+
+* Replace `docsearch.codelibs.org` with your domain in `compose-production.yaml`.
+* Start with the production overlay to bring up `https-portal` (Let's Encrypt,
+  `STAGE: production`) and the larger OpenSearch heap:
   `docker compose -f compose.yaml -f compose-production.yaml up -d`.
