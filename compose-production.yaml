@@ -1,8 +1,23 @@
 services:
   https-portal:
+    image: steveltn/https-portal:1
+    restart: always
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - fess01
     environment:
+      DOMAINS: 'docsearch.codelibs.org -> http://fess01:8080'
       STAGE: production
+      CUSTOM_NGINX_SERVER_CONFIG_BLOCK: |
+          add_header X-Frame-Options SAMEORIGIN;
+    networks:
+      - docsearch_net
+    volumes:
+      - ./data/https-portal/ssl_certs:/var/lib/https-portal
+      - ./data/https-portal/conf/docsearch.codelibs.org.ssl.conf.erb:/var/lib/nginx-conf/docsearch.codelibs.org.ssl.conf.erb:ro
 
-  es01:
+  search01:
     environment:
-      ES_JAVA_OPTS: -Xms3g -Xmx3g
+      OPENSEARCH_JAVA_OPTS: -Xms3g -Xmx3g
