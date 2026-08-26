@@ -61,7 +61,10 @@ server {
         proxy_set_header Connection $connection_upgrade;
         proxy_read_timeout 2h;
         <% end %>
-        proxy_cookie_path / "/; secure; SameSite=none";
+        # Only add the Secure flag. Fess already emits SameSite=Lax, and a second
+        # SameSite attribute in the same Set-Cookie is resolved last-wins, so
+        # appending SameSite=none here never took effect.
+        proxy_cookie_path / "/; secure";
     }
     <% elsif domain.redirect_target_url %>
     location / {
