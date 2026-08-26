@@ -5,8 +5,8 @@ This Docker environment provides a Document/Source Code Search Server on Fess,
 using the **DocSearch static theme** from
 [fess-themes](https://github.com/codelibs/fess-themes).
 
-* Fess: 15.7
-* Search engine: OpenSearch (`fess-opensearch:3.7.0`)
+* Fess: 15.8
+* Search engine: OpenSearch (`fess-opensearch:3.8.0`)
 
 ## Public Site
 

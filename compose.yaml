@@ -1,6 +1,6 @@
 services:
   fess01:
-    image: ghcr.io/codelibs/fess:15.7.0
+    image: ghcr.io/codelibs/fess:15.8.0
     container_name: fess01
     restart: always
     ports:
@@ -33,7 +33,7 @@ services:
       - ./data/fess/usr/share/fess/app/themes/docsearch:/usr/share/fess/app/themes/docsearch
 
   search01:
-    image: ghcr.io/codelibs/fess-opensearch:3.7.0
+    image: ghcr.io/codelibs/fess-opensearch:3.8.0
     container_name: search01
     restart: always
     environment:
