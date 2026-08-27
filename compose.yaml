@@ -63,8 +63,11 @@ services:
     volumes:
       - ./data/opensearch/usr/share/opensearch/data:/usr/share/opensearch/data
       - ./data/opensearch/usr/share/opensearch/config/dictionary:/usr/share/opensearch/config/dictionary
-    ports:
-      - 9200:9200
+    # No host port is published for the search engine. The security plugin is
+    # disabled (DISABLE_SECURITY_PLUGIN), so publishing 9200 would expose an
+    # unauthenticated OpenSearch to every host that can reach this machine.
+    # fess01 reaches it over docsearch_net; for local inspection use
+    # `docker compose exec search01 curl http://localhost:9200/...`.
     networks:
       - docsearch_net
 

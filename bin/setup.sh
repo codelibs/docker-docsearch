@@ -31,26 +31,37 @@ echo "Syncing '${THEME_NAME}' theme from fess-themes..."
 FESS_THEMES_REPO="${FESS_THEMES_REPO:-https://github.com/codelibs/fess-themes.git}"
 FESS_THEMES_REF="${FESS_THEMES_REF:-main}"
 
-rm -rf "${THEME_DEST}"
-mkdir -p "${THEME_DEST}"
+# Stage into a temporary directory and only swap it in once the source has been
+# fetched and validated. Deleting THEME_DEST up front would leave the live theme
+# directory empty whenever the clone fails or FESS_THEMES_DIR is wrong - and the
+# update flow in the README runs this against a container that is already
+# serving that directory.
+staging="$(mktemp -d)"
+trap 'rm -rf "${staging}"' EXIT
+
 if [ -n "${FESS_THEMES_DIR:-}" ]; then
   src="${FESS_THEMES_DIR}/themes/${THEME_NAME}"
   if [ ! -f "${src}/theme.yml" ]; then
     echo "ERROR: ${src}/theme.yml not found (check FESS_THEMES_DIR)." >&2
     exit 1
   fi
-  cp -R "${src}/." "${THEME_DEST}/"
 else
-  tmpdir="$(mktemp -d)"
-  trap 'rm -rf "${tmpdir}"' EXIT
-  git clone --depth 1 --branch "${FESS_THEMES_REF}" "${FESS_THEMES_REPO}" "${tmpdir}/fess-themes"
-  src="${tmpdir}/fess-themes/themes/${THEME_NAME}"
+  git clone --depth 1 --branch "${FESS_THEMES_REF}" "${FESS_THEMES_REPO}" "${staging}/fess-themes"
+  src="${staging}/fess-themes/themes/${THEME_NAME}"
   if [ ! -f "${src}/theme.yml" ]; then
     echo "ERROR: ${src}/theme.yml not found in ${FESS_THEMES_REPO}@${FESS_THEMES_REF}." >&2
     exit 1
   fi
-  cp -R "${src}/." "${THEME_DEST}/"
 fi
+
+mkdir -p "${staging}/${THEME_NAME}"
+cp -R "${src}/." "${staging}/${THEME_NAME}/"
+
+# Swap: the bind mount follows the path, so replace the contents rather than the
+# directory itself.
+rm -rf "${THEME_DEST}"
+mkdir -p "${THEME_DEST}"
+cp -R "${staging}/${THEME_NAME}/." "${THEME_DEST}/"
 echo "Theme synced to ${THEME_DEST}"
 
 if [ "$(uname -s)" = "Linux" ] ; then

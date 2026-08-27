@@ -1,4 +1,5 @@
 /data/https-portal/ssl_certs
+/data/elasticsearch
 /data/fess/opt/fess/*
 !/data/fess/opt/fess/system.properties.template
 /data/fess/var/lib/fess
