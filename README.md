@@ -141,6 +141,32 @@ docker compose -f compose.yaml restart fess01
 Theme assets are served with `Cache-Control: public, max-age=86400`, so a
 browser may keep the old files for up to a day; hard-reload when verifying.
 
+#### Upgrading from Fess 15.8 to 15.9
+
+Fess 15.9 no longer ships Groovy; it is the `fess-script-groovy` plugin now.
+Scheduled jobs created by an older version keep the **Groovy** execution
+method, so without that plugin every job, including Default Crawler, fails
+with `groovy is not found` and only WARN lines are logged. Before starting
+15.9, choose one of the following.
+
+* Keep Groovy: replace the old plugin jar in
+  `data/fess/usr/share/fess/app/WEB-INF/plugin` with the 15.9 one. A jar built
+  for an older Fess, such as `fess-script-groovy-14.1.0.jar`, must not be
+  carried over.
+
+  ```
+  rm -f data/fess/usr/share/fess/app/WEB-INF/plugin/fess-script-groovy-*.jar
+  curl -fL -o data/fess/usr/share/fess/app/WEB-INF/plugin/fess-script-groovy-15.9.0.jar \
+    https://maven.codelibs.org/release/org/codelibs/fess/fess-script-groovy/15.9.0/fess-script-groovy-15.9.0.jar
+  ```
+
+  On Linux the directory is owned by UID `1001`, so use `sudo`.
+* Move the jobs to JavaScript, which is what a fresh 15.9 install uses: remove
+  the old `fess-script-groovy-*.jar` as above and set *Execution Method* to
+  `JavaScript` for each job under Admin > Scheduler. The scripts of the
+  default jobs run unchanged, except *Thumbnail Purger*, whose `1000L` has to
+  become `1000` (a Java `long` literal is not valid JavaScript).
+
 ## Configuration
 
 Fess configuration is split into two layers:
@@ -163,6 +189,26 @@ that saving Admin > General rewrites the whole file and materialises the
 defaults of every managed key, so it will grow well beyond the template. To
 reset it to the defaults, delete `data/fess/opt/fess/system.properties` and
 re-run `bash ./bin/setup.sh`.
+
+### Plugins
+
+`data/fess/usr/share/fess/app/WEB-INF/plugin` is mounted as the plugin
+directory of Fess, so plugins placed there survive a container recreate. Put
+the jar there, or list it in `FESS_PLUGINS` on `fess01` (space-separated
+`<name>:<version>` entries, with the version matching Fess), for example in a
+`compose.override.yaml`:
+
+```
+services:
+  fess01:
+    environment:
+      FESS_PLUGINS: "fess-ds-git:15.8.0"
+```
+
+and start with `docker compose -f compose.yaml -f compose.override.yaml up -d`.
+The image downloads the listed plugins into that directory when the container
+starts. When upgrading Fess, replace the plugins there with the versions that
+match the new Fess.
 
 ### Known behaviour
 
