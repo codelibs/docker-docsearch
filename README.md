@@ -123,16 +123,19 @@ docker compose -f compose.yaml pull
 docker compose -f compose.yaml up -d
 ```
 
-`setup.sh` re-syncs the `docsearch` theme by replacing the directory contents,
-so any local edits under `data/fess/usr/share/fess/app/themes/docsearch` are
-lost. It never overwrites an existing
+`setup.sh` re-syncs the `docsearch` theme by replacing the directory contents
+in place, so any local edits under
+`data/fess/usr/share/fess/app/themes/docsearch` are lost. The directory itself
+is kept, so a running `fess01` keeps its mount and serves the new files right
+away. `setup.sh` never overwrites an existing
 `data/fess/opt/fess/system.properties`. That file is git-ignored, so `git pull`
 does not touch it and your runtime settings (and any changes made under
 Admin > General) are preserved across updates.
 
 `docker compose up -d` only recreates a container when its image or
-configuration changed. If the update only changed the theme, restart Fess
-explicitly — it caches theme files in memory at load time:
+configuration changed, so it does not notice a theme update by itself. Fess
+reads the theme's `theme.yml` (for example the theme version reported by
+`/api/v2/ui/config`) only when it starts, so restart Fess after a theme update:
 
 ```
 docker compose -f compose.yaml restart fess01
