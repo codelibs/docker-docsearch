@@ -149,26 +149,46 @@ browser may keep the old files for up to a day; hard-reload when verifying.
 Fess 15.9 no longer ships Groovy; it is the `fess-script-groovy` plugin now.
 Scheduled jobs created by an older version keep the **Groovy** execution
 method, so without that plugin every job, including Default Crawler, fails
-with `groovy is not found` and only WARN lines are logged. Before starting
-15.9, choose one of the following.
+with `groovy is not found` and only WARN lines are logged. Choose one of the
+following; the order of the steps matters.
 
-* Keep Groovy: replace the old plugin jar in
-  `data/fess/usr/share/fess/app/WEB-INF/plugin` with the 15.9 one. A jar built
-  for an older Fess, such as `fess-script-groovy-14.1.0.jar`, must not be
-  carried over.
+* Keep Groovy: the 15.9 plugin jar has to be in
+  `data/fess/usr/share/fess/app/WEB-INF/plugin` when 15.9 starts. After
+  `git pull` and `bash ./bin/setup.sh`, and before the `docker compose up -d`
+  that starts 15.9, replace the old jar with the 15.9 one. A jar built for an
+  older Fess, such as `fess-script-groovy-14.1.0.jar`, must not be carried
+  over.
 
   ```
-  rm -f data/fess/usr/share/fess/app/WEB-INF/plugin/fess-script-groovy-*.jar
+  find data/fess/usr/share/fess/app/WEB-INF/plugin -name 'fess-script-groovy-*.jar' -delete
   curl -fL -o data/fess/usr/share/fess/app/WEB-INF/plugin/fess-script-groovy-15.9.0.jar \
     https://maven.codelibs.org/release/org/codelibs/fess/fess-script-groovy/15.9.0/fess-script-groovy-15.9.0.jar
   ```
 
-  On Linux the directory is owned by UID `1001`, so use `sudo`.
-* Move the jobs to JavaScript, which is what a fresh 15.9 install uses: remove
-  the old `fess-script-groovy-*.jar` as above and set *Execution Method* to
-  `JavaScript` for each job under Admin > Scheduler. The scripts of the
-  default jobs run unchanged, except *Thumbnail Purger*, whose `1000L` has to
-  become `1000` (a Java `long` literal is not valid JavaScript).
+  On Linux the directory is owned by UID `1001`, so use `sudo`. If 15.9 is
+  already running without the jar, put the jar there and restart `fess01`.
+* Move the jobs to JavaScript, which is what a fresh 15.9 install uses. This is
+  done in the Admin UI of the running 15.9: run the `find` command above to
+  remove the old jar, start 15.9, and then set *Execution Method* to
+  `JavaScript` for each job under Admin > Scheduler. Until a job is switched it
+  fails with `groovy is not found`; the jobs that run every minute, such as Log
+  Aggregator and Thumbnail Generator, log a WARN each minute, so do this right
+  after the start. The scripts of the default jobs run unchanged, except
+  *Thumbnail Purger*, whose `1000L` has to become `1000` (a Java `long` literal
+  is not valid JavaScript).
+
+At startup Fess logs a WARN, `Settings use the script engine groovy, which is
+not registered ...`, that counts every kind of setting still using Groovy
+(scheduled jobs, document boost rules, and the scripts of web, file and data
+configs and path mappings) and names the first three of each. Jobs are not the
+only settings you may have to rewrite for JavaScript; list them with
+`docker compose -f compose.yaml logs fess01 | grep 'is not registered'`.
+
+Saving Admin > General on 15.8 writes the effective defaults into
+`data/fess/opt/fess/system.properties`, for example
+`crawling.user.agent=Mozilla/5.0 (compatible; Fess/15.8; ...)`, and that line
+stays after the upgrade, so the crawler keeps reporting 15.8. Change it to
+`Fess/15.9`, or delete the line to use the default, and restart `fess01`.
 
 ## Configuration
 
