@@ -57,10 +57,11 @@ fi
 mkdir -p "${staging}/${THEME_NAME}"
 cp -R "${src}/." "${staging}/${THEME_NAME}/"
 
-# Swap: the bind mount follows the path, so replace the contents rather than the
-# directory itself.
-rm -rf "${THEME_DEST}"
-mkdir -p "${THEME_DEST}"
+# Swap: replace the contents rather than the directory itself. compose.yaml
+# bind-mounts THEME_DEST into fess01, and a bind mount follows the directory,
+# not the path: a removed and re-created directory leaves a running container
+# with an empty mount until it is restarted.
+find "${THEME_DEST}" -mindepth 1 -delete
 cp -R "${staging}/${THEME_NAME}/." "${THEME_DEST}/"
 echo "Theme synced to ${THEME_DEST}"
 
