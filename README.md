@@ -5,8 +5,8 @@ This Docker environment provides a Document/Source Code Search Server on Fess,
 using the **DocSearch static theme** from
 [fess-themes](https://github.com/codelibs/fess-themes).
 
-* Fess: 15.8
-* Search engine: OpenSearch (`fess-opensearch:3.8.0`)
+* Fess: 15.9
+* Search engine: OpenSearch (`fess-opensearch:3.9.0`)
 
 ## Public Site
 
@@ -225,7 +225,7 @@ the jar there, or list it in `FESS_PLUGINS` on `fess01` (space-separated
 services:
   fess01:
     environment:
-      FESS_PLUGINS: "fess-ds-git:15.8.0"
+      FESS_PLUGINS: "fess-ds-git:15.9.0"
 ```
 
 and start with `docker compose -f compose.yaml -f compose.override.yaml up -d`.
