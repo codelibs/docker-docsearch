@@ -1,6 +1,8 @@
 services:
   fess01:
-    image: ghcr.io/codelibs/fess:15.9.0
+    # In-development Fess build (15.10). Pin a release tag (for example
+    # ghcr.io/codelibs/fess:15.9.0) for a stable stack.
+    image: ghcr.io/codelibs/fess:snapshot
     container_name: fess01
     restart: always
     ports:
