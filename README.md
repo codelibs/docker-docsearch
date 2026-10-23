@@ -132,6 +132,12 @@ away. `setup.sh` never overwrites an existing
 does not touch it and your runtime settings (and any changes made under
 Admin > General) are preserved across updates.
 
+Saving Admin > General writes the effective defaults into that file, for
+example `crawling.user.agent=Mozilla/5.0 (compatible; Fess/<version>; ...)`,
+and the line stays after an upgrade, so the crawler keeps reporting the old
+version. After upgrading, delete the `crawling.user.agent` line to get the
+default again and restart `fess01`.
+
 `docker compose up -d` only recreates a container when its image or
 configuration changed, so it does not notice a theme update by itself. Fess
 reads the theme's `theme.yml` (for example the theme version reported by
@@ -144,20 +150,27 @@ docker compose -f compose.yaml restart fess01
 Theme assets are served with `Cache-Control: public, max-age=86400`, so a
 browser may keep the old files for up to a day; hard-reload when verifying.
 
-#### Upgrading from Fess 15.8 to 15.9
+#### Upgrading from Fess 15.8
 
-Fess 15.9 no longer ships Groovy; it is the `fess-script-groovy` plugin now.
-Scheduled jobs created by an older version keep the **Groovy** execution
-method, so without that plugin every job, including Default Crawler, fails
-with `groovy is not found` and only WARN lines are logged. Choose one of the
-following; the order of the steps matters.
+With the `compose.yaml` of this repository, a single `docker compose up -d`
+moves Fess 15.8 to the Fess version in `compose.yaml` (15.10) and OpenSearch
+3.8 to 3.9.0, so you cross two Fess minor versions at once. Both options below
+were tested this way.
 
-* Keep Groovy: the 15.9 plugin jar has to be in
-  `data/fess/usr/share/fess/app/WEB-INF/plugin` when 15.9 starts. After
+Fess 15.9 and later no longer ship Groovy; it is the `fess-script-groovy`
+plugin now. Scheduled jobs created by an older version keep the **Groovy**
+execution method, so without that plugin every job, including Default Crawler,
+fails with `groovy is not found` and only WARN lines are logged. Choose one of
+the following; the order of the steps matters.
+
+* Keep Groovy: the plugin jar has to be in
+  `data/fess/usr/share/fess/app/WEB-INF/plugin` when the new Fess starts. After
   `git pull` and `bash ./bin/setup.sh`, and before the `docker compose up -d`
-  that starts 15.9, replace the old jar with the 15.9 one. A jar built for an
-  older Fess, such as `fess-script-groovy-14.1.0.jar`, must not be carried
-  over.
+  that starts the new Fess, replace the old jar with a current one. A jar built
+  for an older Fess, such as `fess-script-groovy-14.1.0.jar`, must not be
+  carried over. The plugin version should match the Fess version (see
+  [Plugins](#plugins)); `fess-script-groovy` 15.10.0 is not published yet, and
+  the 15.9.0 jar below was observed to run on the 15.10 build without warnings.
 
   ```
   find data/fess/usr/share/fess/app/WEB-INF/plugin -name 'fess-script-groovy-*.jar' -delete
@@ -165,11 +178,11 @@ following; the order of the steps matters.
     https://maven.codelibs.org/release/org/codelibs/fess/fess-script-groovy/15.9.0/fess-script-groovy-15.9.0.jar
   ```
 
-  On Linux the directory is owned by UID `1001`, so use `sudo`. If 15.9 is
-  already running without the jar, put the jar there and restart `fess01`.
-* Move the jobs to JavaScript, which is what a fresh 15.9 install uses. This is
-  done in the Admin UI of the running 15.9: run the `find` command above to
-  remove the old jar, start 15.9, and then set *Execution Method* to
+  On Linux the directory is owned by UID `1001`, so use `sudo`. If the new Fess
+  is already running without the jar, put the jar there and restart `fess01`.
+* Move the jobs to JavaScript, which is what a fresh install uses. This is
+  done in the Admin UI of the running new Fess: run the `find` command above to
+  remove the old jar, start it, and then set *Execution Method* to
   `JavaScript` for each job under Admin > Scheduler. Until a job is switched it
   fails with `groovy is not found`; the jobs that run every minute, such as Log
   Aggregator and Thumbnail Generator, log a WARN each minute, so do this right
@@ -184,11 +197,8 @@ configs and path mappings) and names the first three of each. Jobs are not the
 only settings you may have to rewrite for JavaScript; list them with
 `docker compose -f compose.yaml logs fess01 | grep 'is not registered'`.
 
-Saving Admin > General on 15.8 writes the effective defaults into
-`data/fess/opt/fess/system.properties`, for example
-`crawling.user.agent=Mozilla/5.0 (compatible; Fess/15.8; ...)`, and that line
-stays after the upgrade, so the crawler keeps reporting 15.8. Change it to
-`Fess/15.9`, or delete the line to use the default, and restart `fess01`.
+Also delete the `crawling.user.agent` line from `system.properties` as
+described under [Update](#update).
 
 ## Configuration
 
@@ -213,13 +223,31 @@ defaults of every managed key, so it will grow well beyond the template. To
 reset it to the defaults, delete `data/fess/opt/fess/system.properties` and
 re-run `bash ./bin/setup.sh`.
 
+### Cipher key
+
+Fess 15.10 logs a WARN, `app.cipher.key is still the default value`, at every
+start of a Fess JVM, which includes the child JVMs of the scheduled jobs such as
+Thumbnail Generator. The key encrypts the passwords stored in crawl and data
+store configurations and its default is public, so set your own value as a
+`fess_config.properties` override, before you save a configuration that has
+credentials:
+
+```
+-Dfess.config.app.cipher.key=<your own value>
+```
+
+Add it to `FESS_JAVA_OPTS` in `compose.yaml`, or, in a `compose.override.yaml`,
+to a `FESS_JAVA_OPTS` that repeats the flags of `compose.yaml`, because the
+override replaces the whole value. Keep the value out of git. Changing it later
+makes the values encrypted with the old key undecryptable.
+
 ### Plugins
 
 `data/fess/usr/share/fess/app/WEB-INF/plugin` is mounted as the plugin
 directory of Fess, so plugins placed there survive a container recreate. Put
 the jar there, or list it in `FESS_PLUGINS` on `fess01` (space-separated
-`<name>:<version>` entries, with the version matching Fess), for example in a
-`compose.override.yaml`:
+`<name>:<version>` entries, with the version matching Fess; the example below
+matches a Fess `15.9.0` pin), for example in a `compose.override.yaml`:
 
 ```
 services:
