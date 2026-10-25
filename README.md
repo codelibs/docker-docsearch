@@ -2,7 +2,7 @@
 
 [Fess](https://fess.codelibs.org/) is an Enterprise Search Server.
 This Docker environment provides a Document/Source Code Search Server on Fess,
-using the **DocSearch static theme** from
+using the **DocSearch theme** from
 [fess-themes](https://github.com/codelibs/fess-themes).
 
 * Fess: 15.10 (`ghcr.io/codelibs/fess:snapshot`, the in-development build; pin `15.9.0` in `compose.yaml` for the release)
@@ -24,7 +24,7 @@ $ cd docker-docsearch
 $ bash ./bin/setup.sh
 ```
 
-`setup.sh` creates the data directories and syncs the `docsearch` static theme
+`setup.sh` creates the data directories and syncs the `docsearch` theme
 from the fess-themes repository into
 `data/fess/usr/share/fess/app/themes/docsearch`.
 
