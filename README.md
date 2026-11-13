@@ -47,8 +47,13 @@ Expect a sudo password prompt; the script aborts if sudo fails.
 ### Start Server
 
 ```
-docker compose -f compose.yaml up -d
+docker compose up -d
 ```
+
+Run the `docker compose` commands in this README from this directory without `-f`: Compose then
+reads `compose.yaml` and, when there is one, `compose.override.yaml` (see [Cipher key](#cipher-key)
+and [Plugins](#plugins)). With `-f compose.yaml` Compose reads only the named files, so your override
+is skipped without a message and the stack starts without its cipher key and plugins.
 
 The web UI is on `http://localhost:8080/`, but it is not reachable the instant
 `up -d` returns — Fess waits for OpenSearch and then boots. Wait for the health
@@ -69,7 +74,7 @@ OpenSearch on the network. Fess reaches it over the compose network; to inspect
 it yourself, go through the container:
 
 ```
-docker compose -f compose.yaml exec search01 \
+docker compose exec search01 \
   curl -s http://localhost:9200/_cluster/health
 ```
 
@@ -104,11 +109,12 @@ You can check search results on `http://localhost:8080/`.
 ### Stop Server
 
 ```
-docker compose -f compose.yaml down
+docker compose down
 ```
 
-If you started the stack with the production overlay, pass both files, otherwise
-`https-portal` keeps running and the network cannot be removed:
+If you started the stack with the production overlay, pass the same files, otherwise
+`https-portal` keeps running and the network cannot be removed (add `-f compose.override.yaml` if you
+have one, since naming files with `-f` turns off its automatic loading):
 
 ```
 docker compose -f compose.yaml -f compose-production.yaml down
@@ -121,8 +127,8 @@ To update an existing deployment:
 ```
 git pull
 bash ./bin/setup.sh
-docker compose -f compose.yaml pull
-docker compose -f compose.yaml up -d
+docker compose pull
+docker compose up -d
 ```
 
 `setup.sh` re-syncs the `docsearch` theme by replacing the directory contents
@@ -146,7 +152,7 @@ reads the theme's `theme.yml` (for example the theme version reported by
 `/api/v2/ui/config`) only when it starts, so restart Fess after a theme update:
 
 ```
-docker compose -f compose.yaml restart fess01
+docker compose restart fess01
 ```
 
 Theme assets are served with `Cache-Control: public, max-age=86400`, so a
@@ -180,8 +186,8 @@ re-run `bash ./bin/setup.sh`.
 ### Cipher key
 
 Fess 15.10 logs a WARN, `app.cipher.key is still the default value`, at every
-start of a Fess JVM, which includes the child JVMs of the scheduled jobs such as
-Thumbnail Generator. The key encrypts the passwords stored in crawl and data
+start of the Fess web application (the child JVMs of the scheduled jobs, such as
+Thumbnail Generator, do not log it). The key encrypts the passwords stored in crawl and data
 store configurations and its default is public, so set your own value as a
 `fess_config.properties` override, before you save a configuration that has
 credentials:
@@ -189,6 +195,11 @@ credentials:
 ```
 -Dfess.config.app.cipher.key=<your own value>
 ```
+
+The value must be 16, 24 or 32 printable ASCII characters without spaces (AES). Any other length is
+accepted at start-up and removes the WARN, but saving a configuration with a password then fails with
+`Failed to initialize the cipher by the invalid key`. For example, `openssl rand -hex 16` prints 32
+characters.
 
 Add it to `FESS_JAVA_OPTS` in `compose.yaml`, or, in a `compose.override.yaml`,
 to a `FESS_JAVA_OPTS` that repeats the flags of `compose.yaml`, because the
@@ -210,7 +221,7 @@ services:
       FESS_PLUGINS: "fess-ds-git:15.9.0"
 ```
 
-and start with `docker compose -f compose.yaml -f compose.override.yaml up -d`.
+and start with `docker compose up -d`, which reads `compose.override.yaml` next to `compose.yaml`.
 The image downloads the listed plugins into that directory when the container
 starts. When upgrading Fess, replace the plugins there with the versions that
 match the new Fess.
@@ -247,3 +258,6 @@ Start with the production overlay to bring up `https-portal` (Let's Encrypt,
 ```
 docker compose -f compose.yaml -f compose-production.yaml up -d
 ```
+
+Add `-f compose.override.yaml` to that command if you keep one: with `-f` Compose no longer loads it
+on its own.
