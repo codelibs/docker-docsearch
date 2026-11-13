@@ -2,6 +2,19 @@
 
 Notes for moving an existing deployment to a newer version; for a fresh install and the regular update flow, see [README.md](README.md).
 
+## Upgrading from Fess 15.9
+
+Two changes of Fess 15.10 show up in a documentation site; both are described
+in the [Fess UPGRADING.md](https://github.com/codelibs/fess/blob/main/UPGRADING.md).
+
+* A search word without quotes of four or more characters now also matches
+  similar words, whatever its case, so the hit count, the label counts and the
+  number of pages can be higher than on 15.9, and a `-word` exclusion removes
+  the similar words too. Put the word in double quotes for an exact match.
+* A page whose extracted text exceeds 10,000,000 characters, or that Fess takes
+  for a zip bomb, is listed under Admin > Failure URL instead of being indexed
+  without its content.
+
 ## Upgrading from Fess 15.8
 
 With the `compose.yaml` of this repository, a single `docker compose up -d`
@@ -47,7 +60,7 @@ not registered ...`, that counts every kind of setting still using Groovy
 (scheduled jobs, document boost rules, and the scripts of web, file and data
 configs and path mappings) and names the first three of each. Jobs are not the
 only settings you may have to rewrite for JavaScript; list them with
-`docker compose -f compose.yaml logs fess01 | grep 'is not registered'`.
+`docker compose logs fess01 | grep 'is not registered'`.
 
 Also delete the `crawling.user.agent` line from `system.properties` as
 described under [Update](README.md#update).
