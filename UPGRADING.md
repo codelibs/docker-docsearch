@@ -15,6 +15,8 @@ in the [Fess UPGRADING.md](https://github.com/codelibs/fess/blob/main/UPGRADING.
   for a zip bomb, is listed under Admin > Failure URL instead of being indexed
   without its content.
 
+OpenSearch moves from 3.9.0 to 3.10.0 (`OPENSEARCH_VERSION`). `docker compose pull` and `docker compose up -d` open the existing data volume as it is: the indices and the search results are unchanged, and no reindex or re-crawl is needed. A volume that 3.10.0 has opened cannot be opened by 3.9.0 again, so copy the volume first if you may need to go back.
+
 ## Upgrading from Fess 15.8
 
 With the `compose.yaml` of this repository, a single `docker compose up -d`

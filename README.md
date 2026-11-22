@@ -6,7 +6,7 @@ using the **DocSearch theme** from
 [fess-themes](https://github.com/codelibs/fess-themes).
 
 * Fess: 15.10 (`ghcr.io/codelibs/fess:snapshot`, the in-development build; pin `15.9.0` in `compose.yaml` for the release)
-* Search engine: OpenSearch (`fess-opensearch:3.9.0`)
+* Search engine: OpenSearch (`fess-opensearch:3.10.0`)
 
 > **Upgrading from an earlier version?** See [UPGRADING.md](UPGRADING.md).
 
